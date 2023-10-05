@@ -22,10 +22,7 @@ module.exports = {
 		const isChannel = e.guild.channels.cache.find(
 			(channel) => channel.name === `🤫│${user}`
 		);
-		// await e.guild.roles.create({
-		//   name: user,
-		//   color: "#FF00FF",
-		// });
+
 
 		// Encontre o objeto em guildConfig com a propriedade guildId igual a guildId
 		const guildConfigEntry = guildConfig.find(
@@ -47,10 +44,10 @@ module.exports = {
 					{
 						id: e.user.id,
 						allow: [
-							"0x0000000000000010",
-							"0x0000000001000000",
-							"0x0000000000000400",
-							"0x0000000000100000",
+							"0x0000000000000010", //MANAGE_CHANNELS
+							"0x0000000001000000", //MOVE_MEMBERS
+							"0x0000000000000400", //VIEW_CHANNEL
+							"0x0000000000100000", //0x0000000000100000
 						],
 					},
 					{

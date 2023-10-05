@@ -52,12 +52,15 @@ client.once("ready", (c) => {
 });
 
 //Listener de interações com o bot
+
+// const CHANNELS_BOT = guildConfig.map((data) => data.canalBot);
+
 client.on(Events.InteractionCreate, async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
 
+
 	const guildId = interaction.guildId;
 	const command = interaction.client.commands.get(interaction.commandName);
-
 
 	if (!command) {
 		console.error(`O comando ${interaction.commandName} não foi encontrado.`);
@@ -95,7 +98,7 @@ client.on("voiceStateUpdate", async (oldChannel, newChannel) => {
 	}
 });
 
-//GPT
+// Interação Chat-GPT
 
 const CHANNELS_GPT = guildConfig.map((data) => data.gptChannel);
 
@@ -174,19 +177,5 @@ client.on("messageCreate", async (message) => {
 	}
 });
 
-//ações de quando um novo membro entra
 
-// client.on("guildMemberAdd", async (member) => {
-// Altera o nome do membro que entrou
-// const novoNome = `Teste`; // Substitua pelo nome desejado
-// member.setNickname(novoNome);
-
-// Atribui a role ao membro que entrou
-// const role = member.guild.roles.cache.get(ROLE_ID);
-// if (role) {
-// 	member.roles.add(role);
-// }
-// });
-
-// Log in to Discord with your client's token
 client.login(TOKEN);

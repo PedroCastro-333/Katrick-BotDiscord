@@ -21,20 +21,25 @@ for (const file of commandsFiles) {
 const rest = new REST({ version: "10" }).setToken(TOKEN);
 
 // Deploy (Exclui o comando existente e depois recarrega os comandos)
+const comandos_d = ["1157420892306022541", "1157415241903263834"];
+
 (async () => {
 	try {
-		// Exclui o comando existente (substitua "ID_DO_COMANDO" pelo ID do comando a ser excluído)
-		// console.log("Excluindo comando existente...");
-		// await rest
-		// 	.delete(
-		// 		Routes.applicationGuildCommand(
-		// 			CLIENT_ID,
-		// 			GUILD_ID,
-		// 			"1098278484897439834"
-		// 		)
-		// 	)
-		// 	.then(() => console.log("Successfully deleted application command"))
-		// 	.catch(console.error);
+		// 	// Exclui o comando existente (substitua "ID_DO_COMANDO" pelo ID do comando a ser excluído)
+		// 	console.log("Excluindo comando existente...");
+		// 	for(let a of comandos_d){
+
+		// 		await rest
+		// 		.delete(
+		// 			Routes.applicationGuildCommand(
+		// 				CLIENT_ID,
+		// 				GUILD_ID,
+		// 				a
+		// 				)
+		// 				)
+		// 				.then(() => console.log("Successfully deleted application command"))
+		// 				.catch(console.error);
+		// 			}
 
 		// Recarrega os comandos
 		console.log("Resetando comandos");

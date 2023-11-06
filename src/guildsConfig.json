@@ -2,14 +2,8 @@
 	{
 		"name": "Galo Joia",
 		"guildId": "624813901137051664",
-		"gptChannel": "1153359575748198471",
 		"secretChannelCategory": "1095385269215178762",
-		"canalBot": "1095386758671237271"
-	},
-	{
-		"name": "Panelinha da Complica",
-		"guildId": "1149342889361543239",
-		"gptChannel": "1153426176912675020",
-		"secretChannelCategory": "1149342891576139878"
+		"criarSalaPrivada": "1170984617059295313",
+		"criarSalaPublica": "1170991325026459750"
 	}
 ]

@@ -1,18 +1,14 @@
 // Require the necessary discord.js classes
 const { Client, Events, GatewayIntentBits, Collection } = require("discord.js");
 
-// Require the necessary openai classes
-const { OpenAI } = require("openai");
-
 //guildConfig
 const guildConfig = require("./guildsConfig.json");
 
 //dotenv
 const dotenv = require("dotenv");
 dotenv.config();
-const { TOKEN, OPENAI_KEY } = process.env;
+const { TOKEN } = process.env;
 
-//importação de comandos
 // Create a new client instance
 const client = new Client({
 	intents: [
@@ -25,6 +21,7 @@ const client = new Client({
 });
 client.commands = new Collection();
 
+//importação de comandos
 const fs = require("node:fs");
 const path = require("node:path");
 const { Console } = require("node:console");
@@ -53,11 +50,8 @@ client.once("ready", (c) => {
 
 //Listener de interações com o bot
 
-// const CHANNELS_BOT = guildConfig.map((data) => data.canalBot);
-
 client.on(Events.InteractionCreate, async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
-
 
 	const guildId = interaction.guildId;
 	const command = interaction.client.commands.get(interaction.commandName);
@@ -85,97 +79,136 @@ client.on(Events.InteractionCreate, async (interaction) => {
 	}
 });
 
-//apagar sala privativa
+// Criar sala
+
+client.on("voiceStateUpdate", async (oldChannel, newChannel) => {
+	if (
+		oldChannel.channel ||
+		newChannel.channel ||
+		!oldChannel.channel ||
+		!newChannel.channel
+	) {
+		if (!oldChannel.channel && newChannel.channel) {
+			const guildId = newChannel.guild.id;
+			const guildConfigEntry = guildConfig.find(
+				(entry) => entry.guildId === guildId
+			);
+
+			if (newChannel.channel.id === guildConfigEntry.criarSalaPrivada) {
+				// Encontre o objeto em guildConfig com a propriedade guildId igual a guildId
+
+				if (!guildConfigEntry) {
+					await e.reply("Configuração não encontrada para este servidor.");
+					return;
+				}
+				// Acesse a propriedade secretChannelCategory para obter o valor do parent
+				const parentCategoryId = guildConfigEntry.secretChannelCategory;
+
+				// Pegue o usuario de quem usou o comando
+				const user = newChannel.guild.members.cache.find(
+					(user) => user.id === newChannel.id
+				).nickname;
+
+				const isChannel = newChannel.guild.channels.cache.find(
+					(channel) => channel.name === `🤫│${user}`
+				);
+
+				if (!isChannel) {
+					await newChannel.channel.guild.channels.create({
+						name: `🤫│${user}`,
+						type: 2,
+						permissionOverwrites: [
+							{
+								id: newChannel.id,
+								allow: [
+									"0x0000000000000010", //MANAGE_CHANNELS
+									"0x0000000001000000", //MOVE_MEMBERS
+									"0x0000000000000400", //VIEW_CHANNEL
+									"0x0000000000100000", //0x0000000000100000
+								],
+							},
+							{
+								id: guildId,
+								deny: ["0x0000000000100000", "0x0000000000000400"],
+							},
+						],
+						parent: parentCategoryId,
+					});
+
+					const voiceChannel = await newChannel.guild.channels.cache.find(
+						(channel) => channel.name === `🤫│${user}`
+					);
+					newChannel.setChannel(voiceChannel);
+				} else {
+					const voiceChannel = await newChannel.guild.channels.cache.find(
+						(channel) => channel.name === `🤫│${user}`
+					);
+					newChannel.setChannel(voiceChannel);
+				}
+			} else if (newChannel.channel.id === guildConfigEntry.criarSalaPublica) {
+				// Encontre o objeto em guildConfig com a propriedade guildId igual a guildId
+
+				if (!guildConfigEntry) {
+					await e.reply("Configuração não encontrada para este servidor.");
+					return;
+				}
+				// Acesse a propriedade secretChannelCategory para obter o valor do parent
+				const parentCategoryId = guildConfigEntry.secretChannelCategory;
+
+				// Pegue o usuario de quem usou o comando
+				const user = newChannel.guild.members.cache.find(
+					(user) => user.id === newChannel.id
+				).nickname;
+
+				const isChannel = newChannel.guild.channels.cache.find(
+					(channel) => channel.name === `🟢│ Bate papo do ${user}`
+				);
+
+				if (!isChannel) {
+					await newChannel.channel.guild.channels.create({
+						name: `🟢│ Bate papo do ${user}`,
+						type: 2,
+						permissionOverwrites: [
+							{
+								id: newChannel.id,
+								allow: [
+									"0x0000000000000010", //MANAGE_CHANNELS
+									"0x0000000001000000", //MOVE_MEMBERS
+									"0x0000000000100000", //0x0000000000100000
+								],
+							},
+						],
+						parent: parentCategoryId,
+					});
+
+					const voiceChannel = await newChannel.guild.channels.cache.find(
+						(channel) => channel.name === `🟢│ Bate papo do ${user}`
+					);
+					newChannel.setChannel(voiceChannel);
+				} else {
+					const voiceChannel = await newChannel.guild.channels.cache.find(
+						(channel) => channel.name === `🟢│ Bate papo do ${user}`
+					);
+					newChannel.setChannel(voiceChannel);
+				}
+			}
+		}
+	}
+});
+
+// Apagar sala privativa
 client.on("voiceStateUpdate", async (oldChannel, newChannel) => {
 	if (oldChannel) {
 		if (!newChannel.channel || (newChannel.channel && oldChannel.channel)) {
 			if (
-				`${oldChannel.channel.name}` === `🤫│${oldChannel.member.displayName}`
+				`${oldChannel.channel.name}` ===
+					`🤫│${oldChannel.member.displayName}` ||
+				`${oldChannel.channel.name}` === `🟢│ Bate papo do ${oldChannel.member.displayName}`
 			) {
 				oldChannel.channel.delete();
 			}
 		}
 	}
 });
-
-// Interação Chat-GPT
-
-const CHANNELS_GPT = guildConfig.map((data) => data.gptChannel);
-
-const openai = new OpenAI({
-	apiKey: OPENAI_KEY,
-});
-
-client.on("messageCreate", async (message) => {
-	if (message.author.bot) return;
-	if (
-		!CHANNELS_GPT.includes(message.channelId) &&
-		!message.mentions.users.has(client.user.id)
-	)
-		return;
-
-	await message.channel.sendTyping();
-
-	const sendTypingInterval = setInterval(() => {
-		message.channel.sendTyping();
-	}, 5000);
-
-	const conversation = [];
-	conversation.push({
-		role: "system",
-		content: "Katrick é um ChatBot amigável.",
-	});
-
-	let prevMessages = await message.channel.messages.fetch({ limit: 10 });
-
-	prevMessages.reverse();
-
-	prevMessages.forEach((msg) => {
-		if (message.author.bot && message.author.id !== client.user.id) return;
-
-		const username = msg.author.username
-			.replace(/\s+/g, "_")
-			.replace(/[^\w\s]/gi, "");
-
-		if (message.author.id === client.user.id) {
-			conversation.push({
-				role: "assistant",
-				name: username,
-				content: message.content,
-			});
-			return;
-		}
-
-		conversation.push({
-			role: "user",
-			name: username,
-			content: message.content,
-		});
-	});
-
-	const res = await openai.chat.completions
-		.create({
-			model: "gpt-3.5-turbo",
-			messages: conversation,
-		})
-		.catch((err) => console.log("OpenAi Error\n: ", err));
-
-	if (!res) {
-		message.reply(
-			"Estou tendo problemas de conexão com a OpenAI. Por favor, tente novamente após alguns minutos."
-		);
-	}
-
-	clearInterval(sendTypingInterval);
-
-	const resText = res.choices[0].message.content;
-	const chunkSizeLimit = 2000;
-
-	for (let i = 0; i < resText.length; i += chunkSizeLimit) {
-		const chunk = resText.substring(i, i + chunkSizeLimit);
-		await message.reply(chunk);
-	}
-});
-
 
 client.login(TOKEN);

@@ -19,6 +19,7 @@ const {
 	messageCreate,
 	deleteChannels,
 	createChannels,
+	addUserById,
 } = require("./libs/events");
 
 // Db UserModel
@@ -69,6 +70,9 @@ client.commands = new Collection();
 
 	// Apagar sala privativa
 	client.on("voiceStateUpdate", deleteChannels);
+
+	// Adiciona novo membro à DB
+	client.on("guildMemberAdd", addUserById);
 
 	logger.info("Autenticando....");
 	await client.login(discordToken);

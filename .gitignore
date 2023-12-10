@@ -1,4 +1,4 @@
 /node_modules/
 *.env
-*/guildsConfig.json
+/src/libs/config/guildsConfig.json
 /comandosNaoUtilizados
